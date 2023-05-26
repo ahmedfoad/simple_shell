@@ -1,0 +1,9 @@
+Ahmed Fouad Ali <eng.ahmedfoad@gmail.com>
+- Implemented the main function
+- Implemeted main.h file
+- Implemented the execution of the built-in command
+- Fixed a bug in the shell system
+
+Godzella Aly <AHMED.F.Aly@hotmail.com>
+- Implemted CD function
+- Implemented spliting token fiunctions
