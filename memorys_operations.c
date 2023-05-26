@@ -11,10 +11,12 @@
  */
 char *custom_memset(char *s, char byte, unsigned int n)
 {
-	unsigned int i;
+	unsigned int i1;
 
-	for (i = 0; i < n; i++)
-		s[i] = byte;
+	for (i1 = 0; i1 < n; i1++)
+	{
+		s[i1] = byte;
+	}
 	return (s);
 }
 
@@ -27,13 +29,17 @@ char *custom_memset(char *s, char byte, unsigned int n)
  */
 void free_string_array(char **str_arr)
 {
-	char **a = str_arr;
+	char **block = str_arr;
 
 	if (!str_arr)
+	{
 		return;
+	}
 	while (*str_arr)
+	{
 		free(*str_arr++);
-	free(a);
+	}
+	free(block);
 }
 
 /**
@@ -47,24 +53,34 @@ void free_string_array(char **str_arr)
  */
 void *custom_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
-	char *p;
+	char *str;
 
 	if (!ptr)
+	{
 		return (malloc(new_size));
+	}
 	if (!new_size)
+	{
 		return (free(ptr), NULL);
+	}
 	if (new_size == old_size)
+	{
 		return (ptr);
+	}
 
-	p = malloc(new_size);
-	if (!p)
+	str = malloc(new_size);
+	if (!str)
+	{
 		return (NULL);
+	}
 
 	old_size = old_size < new_size ? old_size : new_size;
 	while (old_size--)
-		p[old_size] = ((char *)ptr)[old_size];
+	{
+		str[old_size] = ((char *)ptr)[old_size];
+	}
 	free(ptr);
-	return (p);
+	return (str);
 }
 
 /**

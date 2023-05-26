@@ -9,14 +9,14 @@
  */
 size_t list_length(const list_t *head)
 {
-	size_t i = 0;
+	size_t size = 0;
 
 	while (head)
 	{
 		head = head->next;
-		i++;
+		size++;
 	}
-	return (i);
+	return (size);
 }
 
 /**
@@ -29,32 +29,38 @@ size_t list_length(const list_t *head)
  */
 char **list_to_string_array(list_t *head)
 {
-	list_t *node = head;
-	size_t i = list_length(head), j;
-	char **strs;
-	char *str;
+	list_t *liststr = head;
+	size_t size = list_length(head), j;
+	char **block;
+	char *str1;
 
-	if (!head || !i)
-		return (NULL);
-	strs = malloc(sizeof(char *) * (i + 1));
-	if (!strs)
-		return (NULL);
-	for (i = 0; node; node = node->next, i++)
+	if (!head || !size)
 	{
-		str = malloc(get_string_length(node->str) + 1);
-		if (!str)
+		return (NULL);
+	}
+	block = malloc(sizeof(char *) * (size + 1));
+	if (!block)
+	{
+		return (NULL);
+	}
+	for (size = 0; liststr; liststr = liststr->next, size++)
+	{
+		str1 = malloc(get_string_length(liststr->str) + 1);
+		if (!str1)
 		{
-			for (j = 0; j < i; j++)
-				free(strs[j]);
-			free(strs);
+			for (j = 0; j < size; j++)
+			{
+				free(block[j]);
+			}
+			free(block);
 			return (NULL);
 		}
 
-		str = string_copy(str, node->str);
-		strs[i] = str;
+		str1 = string_copy(str1, liststr->str);
+		block[size] = str1;
 	}
-	strs[i] = NULL;
-	return (strs);
+	block[size] = NULL;
+	return (block);
 }
 
 
@@ -102,7 +108,9 @@ list_t *find_node_with_prefix(list_t *node, char *prefix, char c)
 	{
 		p = is_prefix(node->str, prefix);
 		if (p && ((c == -1) || (*p == c)))
+		{
 			return (node);
+		}
 		node = node->next;
 	}
 	return (NULL);
@@ -124,7 +132,9 @@ ssize_t get_node_index(list_t *head, list_t *node)
 	while (head)
 	{
 		if (head == node)
+		{
 			return (i);
+		}
 		head = head->next;
 		i++;
 	}

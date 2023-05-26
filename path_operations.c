@@ -11,13 +11,15 @@
  */
 int is_executable_command(info_t *info, char *path)
 {
-	struct stat st;
+	struct stat stat1;
 
 	(void)info;
-	if (!path || stat(path, &st))
+	if (!path || stat(path, &stat1))
+	{
 		return (0);
+	}
 
-	if (st.st_mode & S_IFREG)
+	if (stat1.st_mode & S_IFREG)
 	{
 		return (1);
 	}
@@ -35,14 +37,18 @@ int is_executable_command(info_t *info, char *path)
  */
 char *duplicate_chars(char *pathstr, int start, int stop)
 {
-	static char buf[1024];
-	int i = 0, k = 0;
+	static char text[1024];
+	int i1 = 0, i = 0;
 
-	for (k = 0, i = start; i < stop; i++)
-		if (pathstr[i] != ':')
-			buf[k++] = pathstr[i];
-	buf[k] = 0;
-	return (buf);
+	for (i = 0, i1 = start; i1 < stop; i1++)
+	{
+		if (pathstr[i1] != ':')
+		{
+			text[i++] = pathstr[i1];
+		}
+	}
+	text[i] = 0;
+	return (text);
 }
 
 /**
@@ -56,8 +62,9 @@ char *duplicate_chars(char *pathstr, int start, int stop)
  */
 char *find_command_path(info_t *info, char *pathstr, char *cmd)
 {
-	int i = 0, curr_pos = 0;
-	char *path;
+	char *c;
+	int i1 = 0, pos = 0;
+
 
 	if (!pathstr)
 		return (NULL);
@@ -68,23 +75,23 @@ char *find_command_path(info_t *info, char *pathstr, char *cmd)
 	}
 	while (1)
 	{
-		if (!pathstr[i] || pathstr[i] == ':')
+		if (!pathstr[i1] || pathstr[i1] == ':')
 		{
-			path = duplicate_chars(pathstr, curr_pos, i);
-			if (!*path)
-				string_concatenate(path, cmd);
+			c = duplicate_chars(pathstr, pos, i1);
+			if (!*c)
+				string_concatenate(c, cmd);
 			else
 			{
-				string_concatenate(path, "/");
-				string_concatenate(path, cmd);
+				string_concatenate(c, "/");
+				string_concatenate(c, cmd);
 			}
-			if (is_executable_command(info, path))
-				return (path);
-			if (!pathstr[i])
+			if (is_executable_command(info, c))
+				return (c);
+			if (!pathstr[i1])
 				break;
-			curr_pos = i;
+			pos = i1;
 		}
-		i++;
+		i1++;
 	}
 	return (NULL);
 }

@@ -13,27 +13,31 @@
  */
 list_t *add_node_to_start(list_t **head, const char *str, int num)
 {
-	list_t *new_head;
+	list_t *block;
 
 	if (!head)
+	{
 		return (NULL);
-	new_head = malloc(sizeof(list_t));
-	if (!new_head)
+	}
+	block = malloc(sizeof(list_t));
+	if (!block)
+	{
 		return (NULL);
-	custom_memset((void *)new_head, 0, sizeof(list_t));
-	new_head->num = num;
+	}
+	custom_memset((void *)block, 0, sizeof(list_t));
+	block->num = num;
 	if (str)
 	{
-		new_head->str = string_duplicate(str);
-		if (!new_head->str)
+		block->str = string_duplicate(str);
+		if (!block->str)
 		{
-			free(new_head);
+			free(block);
 			return (NULL);
 		}
 	}
-	new_head->next = *head;
-	*head = new_head;
-	return (new_head);
+	block->next = *head;
+	*head = block;
+	return (block);
 }
 
 /**
@@ -52,12 +56,16 @@ list_t *add_node_to_end(list_t **head, const char *str, int num)
 	list_t *new_node, *node;
 
 	if (!head)
+	{
 		return (NULL);
+	}
 
 	node = *head;
 	new_node = malloc(sizeof(list_t));
 	if (!new_node)
+	{
 		return (NULL);
+	}
 	custom_memset((void *)new_node, 0, sizeof(list_t));
 	new_node->num = num;
 	if (str)
@@ -72,11 +80,15 @@ list_t *add_node_to_end(list_t **head, const char *str, int num)
 	if (node)
 	{
 		while (node->next)
+		{
 			node = node->next;
+		}
 		node->next = new_node;
 	}
 	else
+	{
 		*head = new_node;
+	}
 	return (new_node);
 }
 
@@ -121,7 +133,9 @@ int delete_node_by_index(list_t **head, unsigned int index)
 	unsigned int i = 0;
 
 	if (!head || !*head)
+	{
 		return (0);
+	}
 
 	if (!index)
 	{
@@ -159,18 +173,20 @@ int delete_node_by_index(list_t **head, unsigned int index)
  */
 void free_linked_list(list_t **head_ptr)
 {
-	list_t *node, *next_node, *head;
+	list_t *list, *next_list, *head;
 
 	if (!head_ptr || !*head_ptr)
-		return;
-	head = *head_ptr;
-	node = head;
-	while (node)
 	{
-		next_node = node->next;
-		free(node->str);
-		free(node);
-		node = next_node;
+		return;
+	}
+	head = *head_ptr;
+	list = head;
+	while (list)
+	{
+		next_list = list->next;
+		free(list->str);
+		free(list);
+		list = next_list;
 	}
 	*head_ptr = NULL;
 }

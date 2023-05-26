@@ -8,24 +8,30 @@
  */
 int _erratoi(char *s)
 {
-	int i = 0;
-	unsigned long int result = 0;
+	int i1 = 0;
+	unsigned long int result1 = 0;
 
 	if (*s == '+')
-		s++;  /* TODO: why does this make main return 255? */
-	for (i = 0;  s[i] != '\0'; i++)
 	{
-		if (s[i] >= '0' && s[i] <= '9')
+		s++;
+	}
+	for (i1 = 0;  s[i1] != '\0'; i1++)
+	{
+		if (s[i1] >= '0' && s[i1] <= '9')
 		{
-			result *= 10;
-			result += (s[i] - '0');
-			if (result > INT_MAX)
+			result1 *= 10;
+			result1 += (s[i1] - '0');
+			if (result1 > INT_MAX)
+			{
 				return (-1);
+			}
 		}
 		else
+		{
 			return (-1);
+		}
 	}
-	return (result);
+	return (result1);
 }
 
 /**
@@ -56,33 +62,37 @@ void print_error(info_t *info, char *estr)
 int print_d(int input, int fd)
 {
 	int (*__putchar)(char) = print_character;
-	int i, count = 0;
+	int i1, count1 = 0;
 	unsigned int _abs_, current;
 
 	if (fd == STDERR_FILENO)
+	{
 		__putchar = _print_char;
+	}
 	if (input < 0)
 	{
 		_abs_ = -input;
 		__putchar('-');
-		count++;
+		count1++;
 	}
 	else
-		_abs_ = input;
-	current = _abs_;
-	for (i = 1000000000; i > 1; i /= 10)
 	{
-		if (_abs_ / i)
+		_abs_ = input;
+	}
+	current = _abs_;
+	for (i1 = 1000000000; i1 > 1; i1 /= 10)
+	{
+		if (_abs_ / i1)
 		{
-			__putchar('0' + current / i);
-			count++;
+			__putchar('0' + current / i1);
+			count1++;
 		}
-		current %= i;
+		current %= i1;
 	}
 	__putchar('0' + current);
-	count++;
+	count1++;
 
-	return (count);
+	return (count1);
 }
 
 /**
@@ -95,10 +105,10 @@ int print_d(int input, int fd)
  */
 char *convert_number(long int num, int base, int flags)
 {
-	static char *array;
-	static char buffer[50];
 	char sign = 0;
-	char *ptr;
+	char *ptr1;
+	static char *array1;
+	static char text[50];
 	unsigned long n = num;
 
 	if (!(flags & CONVERT_UNSIGNED) && num < 0)
@@ -107,18 +117,20 @@ char *convert_number(long int num, int base, int flags)
 		sign = '-';
 
 	}
-	array = flags & CONVERT_LOWERCASE ? "0123456789abcdef" : "0123456789ABCDEF";
-	ptr = &buffer[49];
-	*ptr = '\0';
+	array1 = flags & CONVERT_LOWERCASE ? "0123456789abcdef" : "0123456789ABCDEF";
+	ptr1 = &text[49];
+	*ptr1 = '\0';
 
 	do	{
-		*--ptr = array[n % base];
+		*--ptr1 = array1[n % base];
 		n /= base;
 	} while (n != 0);
 
 	if (sign)
-		*--ptr = sign;
-	return (ptr);
+	{
+		*--ptr1 = sign;
+	}
+	return (ptr1);
 }
 
 /**
@@ -129,12 +141,14 @@ char *convert_number(long int num, int base, int flags)
  */
 void remove_comments(char *buf)
 {
-	int i;
+	int i1;
 
-	for (i = 0; buf[i] != '\0'; i++)
-		if (buf[i] == '#' && (!i || buf[i - 1] == ' '))
+	for (i1 = 0; buf[i1] != '\0'; i1++)
+	{
+		if (buf[i1] == '#' && (!i1 || buf[i1 - 1] == ' '))
 		{
-			buf[i] = '\0';
+			buf[i1] = '\0';
 			break;
 		}
+	}
 }

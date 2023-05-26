@@ -10,8 +10,8 @@
  */
 ssize_t input_buf(info_t *info, char **buf, size_t *len)
 {
-	ssize_t r = 0;
-	size_t len_p = 0;
+	ssize_t ssize = 0;
+	size_t size = 0;
 
 	if (!*len) /* if nothing left in the buffer, fill it */
 	{
@@ -19,29 +19,29 @@ ssize_t input_buf(info_t *info, char **buf, size_t *len)
 		free(*buf);
 		*buf = NULL;
 		signal(SIGINT, sigintHandler);
-#if USE_GETLINE
+		#if USE_GETLINE
 		r = getline(buf, &len_p, stdin);
-#else
-		r = _getline(info, buf, &len_p);
-#endif
-		if (r > 0)
+		#else
+		ssize = _getline(info, buf, &size);
+		#endif
+		if (ssize > 0)
 		{
-			if ((*buf)[r - 1] == '\n')
+			if ((*buf)[ssize - 1] == '\n')
 			{
-				(*buf)[r - 1] = '\0'; /* remove trailing newline */
-				r--;
+				(*buf)[ssize - 1] = '\0'; /* remove trailing newline */
+				ssize--;
 			}
 			info->linecount_flag = 1;
 			remove_comments(*buf);
 			build_history_list(info, *buf, info->histcount++);
 			/* if (_find_character(*buf, ';')) is this a command chain? */
 			{
-				*len = r;
+				*len = ssize;
 				info->cmd_buf = buf;
 			}
 		}
 	}
-	return (r);
+	return (ssize);
 }
 
 /**
@@ -52,32 +52,34 @@ ssize_t input_buf(info_t *info, char **buf, size_t *len)
  */
 ssize_t get_input(info_t *info)
 {
-	static char *buf; /* the ';' command chain buffer */
-	static size_t i, j, len;
-	ssize_t r = 0;
+	static char *buf1; /* the ';' command chain buffer */
+	static size_t size, size2, size1;
+	ssize_t ssize = 0;
 	char **buf_p = &(info->arg), *p;
 
 	print_character(BUF_FLUSH);
-	r = input_buf(info, &buf, &len);
-	if (r == -1) /* EOF */
+	ssize = input_buf(info, &buf1, &size1);
+	if (ssize == -1) /* EOF */
 		return (-1);
-	if (len)	/* we have commands left in the chain buffer */
+	if (size1)	/* we have commands left in the chain buffer */
 	{
-		j = i; /* init new iterator to current buf position */
-		p = buf + i; /* get pointer for return */
+		size2 = size; /* init new iterator to current buf position */
+		p = buf1 + size; /* get pointer for return */
 
-		check_should_chain(info, buf, &j, i, len);
-		while (j < len) /* iterate to semicolon or end */
+		check_should_chain(info, buf1, &size2, size, size1);
+		while (size2 < size1) /* iterate to semicolon or end */
 		{
-			if (is_chain_delimiter(info, buf, &j))
+			if (is_chain_delimiter(info, buf1, &size2))
+			{
 				break;
-			j++;
+			}
+			size2++;
 		}
 
-		i = j + 1; /* increment past nulled ';'' */
-		if (i >= len) /* reached end of buffer? */
+		size = size2 + 1; /* increment past nulled ';'' */
+		if (size >= size1) /* reached end of buffer? */
 		{
-			i = len = 0; /* reset position and length */
+			size = size1 = 0; /* reset position and length */
 			info->cmd_buf_type = CMD_NORM;
 		}
 
@@ -85,8 +87,8 @@ ssize_t get_input(info_t *info)
 		return (get_string_length(p)); /* return length of current command */
 	}
 
-	*buf_p = buf; /* else not a chain, pass back buffer from _getline() */
-	return (r); /* return length of buffer from _getline() */
+	*buf_p = buf1; /* else not a chain, pass back buffer from _getline() */
+	return (ssize); /* return length of buffer from _getline() */
 }
 
 /**
@@ -99,14 +101,18 @@ ssize_t get_input(info_t *info)
  */
 ssize_t read_buf(info_t *info, char *buf, size_t *i)
 {
-	ssize_t r = 0;
+	ssize_t ssize = 0;
 
 	if (*i)
+	{
 		return (0);
-	r = read(info->readfd, buf, READ_BUF_SIZE);
-	if (r >= 0)
-		*i = r;
-	return (r);
+	}
+	ssize = read(info->readfd, buf, READ_BUF_SIZE);
+	if (ssize >= 0)
+	{
+		*i = ssize;
+	}
+	return (ssize);
 }
 
 /**
@@ -119,41 +125,44 @@ ssize_t read_buf(info_t *info, char *buf, size_t *i)
  */
 int _getline(info_t *info, char **ptr, size_t *length)
 {
-	static char buf[READ_BUF_SIZE];
-	static size_t i, len;
-	size_t k;
-	ssize_t r = 0, s = 0;
+	size_t size2;
+	ssize_t ssize = 0, ssize1 = 0;
+	static char text[READ_BUF_SIZE];
+	static size_t size, size1;
+
 	char *p = NULL, *new_p = NULL, *c;
 
 	p = *ptr;
 	if (p && length)
-		s = *length;
-	if (i == len)
-		i = len = 0;
+		ssize1 = *length;
+	if (size == size1)
+		size = size1 = 0;
 
-	r = read_buf(info, buf, &len);
-	if (r == -1 || (r == 0 && len == 0))
+	ssize = read_buf(info, text, &size1);
+	if (ssize == -1 || (ssize == 0 && size1 == 0))
 		return (-1);
 
-	c = _find_character(buf + i, '\n');
-	k = c ? 1 + (unsigned int)(c - buf) : len;
-	new_p = custom_realloc(p, s, s ? s + k : k + 1);
+	c = _find_character(text + size, '\n');
+	size2 = c ? 1 + (unsigned int)(c - text) : size1;
+	new_p = custom_realloc(p, ssize1, ssize1 ? ssize1 + size2 : size2 + 1);
 	if (!new_p) /* MALLOC FAILURE! */
 		return (p ? free(p), -1 : -1);
 
-	if (s)
-		_concatenate_strings(new_p, buf + i, k - i);
+	if (ssize1)
+		_concatenate_strings(new_p, text + size, size2 - size);
 	else
-		_copy_string(new_p, buf + i, k - i + 1);
+		_copy_string(new_p, text + size, size2 - size + 1);
 
-	s += k - i;
-	i = k;
+	ssize1 += size2 - size;
+	size = size2;
 	p = new_p;
 
 	if (length)
-		*length = s;
+	{
+		*length = ssize1;
+	}
 	*ptr = p;
-	return (s);
+	return (ssize1);
 }
 
 /**

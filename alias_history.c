@@ -9,18 +9,21 @@
  */
 int unset_alias_from_string(info_t *info, char *str)
 {
-	char *p, c;
-	int ret;
+	int ret1;
+	char *string, c1;
 
-	p = _find_character(str, '=');
-	if (!p)
+
+	string = _find_character(str, '=');
+	if (!string)
+	{
 		return (1);
-	c = *p;
-	*p = 0;
-	ret = delete_node_by_index(&(info->alias),
+	}
+	c1 = *string;
+	*string = 0;
+	ret1 = delete_node_by_index(&(info->alias),
 		get_node_index(info->alias, find_node_with_prefix(info->alias, str, -1)));
-	*p = c;
-	return (ret);
+	*string = c1;
+	return (ret1);
 }
 
 /**
@@ -33,13 +36,17 @@ int unset_alias_from_string(info_t *info, char *str)
  */
 int set_alias_from_string(info_t *info, char *str)
 {
-	char *p;
+	char *text;
 
-	p = _find_character(str, '=');
-	if (!p)
+	text = _find_character(str, '=');
+	if (!text)
+	{
 		return (1);
-	if (!*++p)
+	}
+	if (!*++text)
+	{
 		return (unset_alias_from_string(info, str));
+	}
 
 	unset_alias_from_string(info, str);
 	return (add_node_to_end(&(info->alias), str, 0) == NULL);
@@ -55,15 +62,17 @@ int set_alias_from_string(info_t *info, char *str)
  */
 int print_alias_string(list_t *node)
 {
-	char *p = NULL, *a = NULL;
+	char *text = NULL, *string = NULL;
 
 	if (node)
 	{
-		p = _find_character(node->str, '=');
-		for (a = node->str; a <= p; a++)
-			print_character(*a);
+		text = _find_character(node->str, '=');
+		for (string = node->str; string <= text; string++)
+		{
+			print_character(*string);
+		}
 		print_character('\'');
-		print_string(p + 1);
+		print_string(text + 1);
 		print_string("'\n");
 		return (0);
 	}
@@ -81,27 +90,31 @@ int print_alias_string(list_t *node)
  */
 int handle_alias_builtin(info_t *info)
 {
-	int i = 0;
-	char *p = NULL;
-	list_t *node = NULL;
+	int i1 = 0;
+	char *string = NULL;
+	list_t *liststr = NULL;
 
 	if (info->argc == 1)
 	{
-		node = info->alias;
-		while (node)
+		liststr = info->alias;
+		while (liststr)
 		{
-			print_alias_string(node);
-			node = node->next;
+			print_alias_string(liststr);
+			liststr = liststr->next;
 		}
 		return (0);
 	}
-	for (i = 1; info->argv[i]; i++)
+	for (i1 = 1; info->argv[i1]; i1++)
 	{
-		p = _find_character(info->argv[i], '=');
-		if (p)
-			set_alias_from_string(info, info->argv[i]);
+		string = _find_character(info->argv[i1], '=');
+		if (string)
+		{
+			set_alias_from_string(info, info->argv[i1]);
+		}
 		else
-			print_alias_string(find_node_with_prefix(info->alias, info->argv[i], '='));
+		{
+			print_alias_string(find_node_with_prefix(info->alias, info->argv[i1], '='));
+		}
 	}
 
 	return (0);

@@ -26,25 +26,27 @@ char **get_environ(info_t *info)
  */
 int _unsetenv(info_t *info, char *var)
 {
-	list_t *node = info->env;
-	size_t i = 0;
-	char *p;
+	list_t *liststr = info->env;
+	size_t index = 0;
+	char *string;
 
-	if (!node || !var)
-		return (0);
-
-	while (node)
+	if (!liststr || !var)
 	{
-		p = is_prefix(node->str, var);
-		if (p && *p == '=')
+		return (0);
+	}
+
+	while (liststr)
+	{
+		string = is_prefix(liststr->str, var);
+		if (string && *string == '=')
 		{
-			info->env_changed = delete_node_by_index(&(info->env), i);
-			i = 0;
-			node = info->env;
+			info->env_changed = delete_node_by_index(&(info->env), index);
+			index = 0;
+			liststr = info->env;
 			continue;
 		}
-		node = node->next;
-		i++;
+		liststr = liststr->next;
+		index++;
 	}
 	return (info->env_changed);
 }
@@ -60,34 +62,38 @@ int _unsetenv(info_t *info, char *var)
  */
 int _setenv(info_t *info, char *var, char *value)
 {
-	char *buf = NULL;
-	list_t *node;
-	char *p;
+	char *block = NULL;
+	list_t *liststr;
+	char *string;
 
 	if (!var || !value)
-		return (0);
-
-	buf = malloc(get_string_length(var) + get_string_length(value) + 2);
-	if (!buf)
-		return (1);
-	string_copy(buf, var);
-	string_concatenate(buf, "=");
-	string_concatenate(buf, value);
-	node = info->env;
-	while (node)
 	{
-		p = is_prefix(node->str, var);
-		if (p && *p == '=')
+		return (0);
+	}
+
+	block = malloc(get_string_length(var) + get_string_length(value) + 2);
+	if (!block)
+	{
+		return (1);
+	}
+	string_copy(block, var);
+	string_concatenate(block, "=");
+	string_concatenate(block, value);
+	liststr = info->env;
+	while (liststr)
+	{
+		string = is_prefix(liststr->str, var);
+		if (string && *string == '=')
 		{
-			free(node->str);
-			node->str = buf;
+			free(liststr->str);
+			liststr->str = block;
 			info->env_changed = 1;
 			return (0);
 		}
-		node = node->next;
+		liststr = liststr->next;
 	}
-	add_node_to_end(&(info->env), buf, 0);
-	free(buf);
+	add_node_to_end(&(info->env), block, 0);
+	free(block);
 	info->env_changed = 1;
 	return (0);
 }

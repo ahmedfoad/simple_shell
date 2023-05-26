@@ -10,18 +10,18 @@
  */
 int main(int argc, char **argv)
 {
-	info_t info[] = { INFO_INIT };
-	int fd = 2;
+	info_t passinfos[] = { INFO_INIT };
+	int fd1 = 2;
 
 	asm ("mov %1, %0\n\t"
 		"add $3, %0"
-		: "=r" (fd)
-		: "r" (fd));
+		: "=r" (fd1)
+		: "r" (fd1));
 
 	if (argc == 2)
 	{
-		fd = open(argv[1], O_RDONLY);
-		if (fd == -1)
+		fd1 = open(argv[1], O_RDONLY);
+		if (fd1 == -1)
 		{
 			if (errno == EACCES)
 				exit(126);
@@ -36,10 +36,10 @@ int main(int argc, char **argv)
 			}
 			return (EXIT_FAILURE);
 		}
-		info->readfd = fd;
+		passinfos->readfd = fd1;
 	}
-	populate_env_list(info);
-	read_history(info);
-	main_shell_loop(info, argv);
+	populate_env_list(passinfos);
+	read_history(passinfos);
+	main_shell_loop(passinfos, argv);
 	return (EXIT_SUCCESS);
 }

@@ -9,20 +9,24 @@
 
 char *get_history_file(info_t *info)
 {
-	char *buf, *dir;
+	char *buf1, *dir1;
 
-	dir = get_env_value(info, "HOME=");
-	if (!dir)
+	dir1 = get_env_value(info, "HOME=");
+	if (!dir1)
+	{
 		return (NULL);
-	buf = malloc(sizeof(char) * (get_string_length(dir)
+	}
+	buf1 = malloc(sizeof(char) * (get_string_length(dir1)
 			+ get_string_length(HIST_FILE) + 2));
-	if (!buf)
+	if (!buf1)
+	{
 		return (NULL);
-	buf[0] = 0;
-	string_copy(buf, dir);
-	string_concatenate(buf, "/");
-	string_concatenate(buf, HIST_FILE);
-	return (buf);
+	}
+	buf1[0] = 0;
+	string_copy(buf1, dir1);
+	string_concatenate(buf1, "/");
+	string_concatenate(buf1, HIST_FILE);
+	return (buf1);
 }
 
 /**
@@ -33,24 +37,28 @@ char *get_history_file(info_t *info)
  */
 int write_history(info_t *info)
 {
-	ssize_t fd;
-	char *filename = get_history_file(info);
-	list_t *node = NULL;
+	ssize_t ssize;
+	char *block = get_history_file(info);
+	list_t *liststr = NULL;
 
-	if (!filename)
-		return (-1);
-
-	fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, 0644);
-	free(filename);
-	if (fd == -1)
-		return (-1);
-	for (node = info->history; node; node = node->next)
+	if (!block)
 	{
-		_write_string_to_fd(node->str, fd);
-		_write_to_fd('\n', fd);
+		return (-1);
 	}
-	_write_to_fd(BUF_FLUSH, fd);
-	close(fd);
+
+	ssize = open(block, O_CREAT | O_TRUNC | O_RDWR, 0644);
+	free(block);
+	if (ssize == -1)
+	{
+		return (-1);
+	}
+	for (liststr = info->history; liststr; liststr = liststr->next)
+	{
+		_write_string_to_fd(liststr->str, ssize);
+		_write_to_fd('\n', ssize);
+	}
+	_write_to_fd(BUF_FLUSH, ssize);
+	close(ssize);
 	return (1);
 }
 
@@ -62,41 +70,42 @@ int write_history(info_t *info)
  */
 int read_history(info_t *info)
 {
-	int i, last = 0, linecount = 0;
-	ssize_t fd, rdlen, fsize = 0;
+	ssize_t file_handle, ssize, ssize1 = 0;
 	struct stat st;
-	char *buf = NULL, *filename = get_history_file(info);
+	int i1, last1 = 0, linecount1 = 0;
+	char *block = NULL, *block1 = get_history_file(info);
 
-	if (!filename)
+	if (!block1)
 		return (0);
 
-	fd = open(filename, O_RDONLY);
-	free(filename);
-	if (fd == -1)
+	file_handle = open(block1, O_RDONLY);
+	free(block1);
+	if (file_handle == -1)
 		return (0);
-	if (!fstat(fd, &st))
-		fsize = st.st_size;
-	if (fsize < 2)
+	if (!fstat(file_handle, &st))
+		ssize1 = st.st_size;
+	if (ssize1 < 2)
 		return (0);
-	buf = malloc(sizeof(char) * (fsize + 1));
-	if (!buf)
+	block = malloc(sizeof(char) * (ssize1 + 1));
+	if (!block)
+
 		return (0);
-	rdlen = read(fd, buf, fsize);
-	buf[fsize] = 0;
-	if (rdlen <= 0)
-		return (free(buf), 0);
-	close(fd);
-	for (i = 0; i < fsize; i++)
-		if (buf[i] == '\n')
+	ssize = read(file_handle, block, ssize1);
+	block[ssize1] = 0;
+	if (ssize <= 0)
+		return (free(block), 0);
+	close(file_handle);
+	for (i1 = 0; i1 < ssize1; i1++)
+		if (block[i1] == '\n')
 		{
-			buf[i] = 0;
-			build_history_list(info, buf + last, linecount++);
-			last = i + 1;
+			block[i1] = 0;
+			build_history_list(info, block + last1, linecount1++);
+			last1 = i1 + 1;
 		}
-	if (last != i)
-		build_history_list(info, buf + last, linecount++);
-	free(buf);
-	info->histcount = linecount;
+	if (last1 != i1)
+		build_history_list(info, block + last1, linecount1++);
+	free(block);
+	info->histcount = linecount1;
 	while (info->histcount-- >= HIST_MAX)
 		delete_node_by_index(&(info->history), 0);
 	renumber_history(info);
@@ -113,14 +122,18 @@ int read_history(info_t *info)
  */
 int build_history_list(info_t *info, char *buf, int linecount)
 {
-	list_t *node = NULL;
+	list_t *liststr = NULL;
 
 	if (info->history)
-		node = info->history;
-	add_node_to_end(&node, buf, linecount);
+	{
+		liststr = info->history;
+	}
+	add_node_to_end(&liststr, buf, linecount);
 
 	if (!info->history)
-		info->history = node;
+	{
+		info->history = liststr;
+	}
 	return (0);
 }
 
@@ -132,13 +145,13 @@ int build_history_list(info_t *info, char *buf, int linecount)
  */
 int renumber_history(info_t *info)
 {
-	list_t *node = info->history;
-	int i = 0;
+	list_t *liststr = info->history;
+	int i1 = 0;
 
-	while (node)
+	while (liststr)
 	{
-		node->num = i++;
-		node = node->next;
+		liststr->num = i1++;
+		liststr = liststr->next;
 	}
-	return (info->histcount = i);
+	return (info->histcount = i1);
 }

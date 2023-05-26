@@ -9,14 +9,18 @@
  */
 int get_string_length(char *str)
 {
-	int i = 0;
+	int i1 = 0;
 
 	if (!str)
+	{
 		return (0);
+	}
 
 	while (*str++)
-		i++;
-	return (i);
+	{
+		i1++;
+	}
+	return (i1);
 }
 
 /**
@@ -32,14 +36,20 @@ int string_compare(char *str1, char *str2)
 	while (*str1 && *str2)
 	{
 		if (*str1 != *str2)
+		{
 			return (*str1 - *str2);
+		}
 		str1++;
 		str2++;
 	}
 	if (*str1 == *str2)
+	{
 		return (0);
+	}
 	else
+	{
 		return (*str1 < *str2 ? -1 : 1);
+	}
 }
 
 /**
@@ -53,8 +63,12 @@ int string_compare(char *str1, char *str2)
 char *is_prefix(const char *haystack, const char *needle)
 {
 	while (*needle)
+	{
 		if (*needle++ != *haystack++)
+		{
 			return (NULL);
+		}
+	}
 	return ((char *)haystack);
 }
 
@@ -68,12 +82,16 @@ char *is_prefix(const char *haystack, const char *needle)
  */
 char *string_concatenate(char *dest, char *src)
 {
-	char *ret = dest;
+	char *ret1 = dest;
 
 	while (*dest)
+	{
 		dest++;
+	}
 	while (*src)
+	{
 		*dest++ = *src++;
+	}
 	*dest = *src;
-	return (ret);
+	return (ret1);
 }

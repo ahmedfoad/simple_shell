@@ -21,8 +21,12 @@ int is_interactive(info_t *info)
 int is_delimiter(char c, char *delim)
 {
 	while (*delim)
+	{
 		if (*delim++ == c)
+		{
 			return (1);
+		}
+	}
 	return (0);
 }
 
@@ -35,9 +39,13 @@ int is_delimiter(char c, char *delim)
 int is_alpha(int c)
 {
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+	{
 		return (1);
+	}
 	else
+	{
 		return (0);
+	}
 }
 
 /**
@@ -49,28 +57,36 @@ int is_alpha(int c)
 
 int string_to_int(char *s)
 {
-	int i, sign = 1, flag = 0, output;
+	int i1, sign1 = 1, flag1 = 0, output1;
 	unsigned int result = 0;
 
-	for (i = 0;  s[i] != '\0' && flag != 2; i++)
+	for (i1 = 0;  s[i1] != '\0' && flag1 != 2; i1++)
 	{
-		if (s[i] == '-')
-			sign *= -1;
-
-		if (s[i] >= '0' && s[i] <= '9')
+		if (s[i1] == '-')
 		{
-			flag = 1;
-			result *= 10;
-			result += (s[i] - '0');
+			sign1 *= -1;
 		}
-		else if (flag == 1)
-			flag = 2;
+
+		if (s[i1] >= '0' && s[i1] <= '9')
+		{
+			flag1 = 1;
+			result *= 10;
+			result += (s[i1] - '0');
+		}
+		else if (flag1 == 1)
+		{
+			flag1 = 2;
+		}
 	}
 
-	if (sign == -1)
-		output = -result;
+	if (sign1 == -1)
+	{
+		output1 = -result;
+	}
 	else
-		output = result;
+	{
+		output1 = result;
+	}
 
-	return (output);
+	return (output1);
 }

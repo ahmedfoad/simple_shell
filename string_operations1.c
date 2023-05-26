@@ -11,25 +11,25 @@
  */
 char *_copy_string(char *dest, char *src, int n)
 {
-	int i, j;
-	char *s = dest;
+	int i1, i;
+	char *str = dest;
 
-	i = 0;
-	while (src[i] != '\0' && i < n - 1)
+	i1 = 0;
+	while (src[i1] != '\0' && i1 < n - 1)
 	{
-		dest[i] = src[i];
-		i++;
+		dest[i1] = src[i1];
+		i1++;
 	}
-	if (i < n)
+	if (i1 < n)
 	{
-		j = i;
-		while (j < n)
+		i = i1;
+		while (i < n)
 		{
-			dest[j] = '\0';
-			j++;
+			dest[i] = '\0';
+			i++;
 		}
 	}
-	return (s);
+	return (str);
 }
 
 /**
@@ -43,21 +43,25 @@ char *_copy_string(char *dest, char *src, int n)
  */
 char *_concatenate_strings(char *dest, char *src, int n)
 {
-	int i, j;
+	int i1, i;
 	char *s = dest;
 
+	i1 = 0;
 	i = 0;
-	j = 0;
-	while (dest[i] != '\0')
-		i++;
-	while (src[j] != '\0' && j < n)
+	while (dest[i1] != '\0')
 	{
-		dest[i] = src[j];
-		i++;
-		j++;
+		i1++;
 	}
-	if (j < n)
-		dest[i] = '\0';
+	while (src[i] != '\0' && i < n)
+	{
+		dest[i1] = src[i];
+		i1++;
+		i++;
+	}
+	if (i < n)
+	{
+		dest[i1] = '\0';
+	}
 	return (s);
 }
 
@@ -73,7 +77,9 @@ char *_find_character(char *s, char c)
 {
 	do {
 		if (*s == c)
+		{
 			return (s);
+		}
 	} while (*s++ != '\0');
 
 	return (NULL);

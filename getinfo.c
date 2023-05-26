@@ -19,7 +19,7 @@ void clear_info(info_t *info)
  */
 void set_info(info_t *info, char **av)
 {
-	int i = 0;
+	int i1 = 0;
 
 	info->fname = av[0];
 	if (info->arg)
@@ -35,9 +35,9 @@ void set_info(info_t *info, char **av)
 				info->argv[1] = NULL;
 			}
 		}
-		for (i = 0; info->argv && info->argv[i]; i++)
+		for (i1 = 0; info->argv && info->argv[i1]; i1++)
 			;
-		info->argc = i;
+		info->argc = i1;
 
 		replace_alias(info);
 		replace_vars(info);
@@ -57,18 +57,28 @@ void free_info(info_t *info, int all)
 	if (all)
 	{
 		if (!info->cmd_buf)
+		{
 			free(info->arg);
+		}
 		if (info->env)
+		{
 			free_linked_list(&(info->env));
+		}
 		if (info->history)
+		{
 			free_linked_list(&(info->history));
+		}
 		if (info->alias)
+		{
 			free_linked_list(&(info->alias));
+		}
 		free_string_array(info->environ);
 			info->environ = NULL;
 		free_and_null_ptr((void **)info->cmd_buf);
 		if (info->readfd > 2)
+		{
 			close(info->readfd);
+		}
 		print_character(BUF_FLUSH);
 	}
 }

@@ -9,14 +9,16 @@
  */
 void _print_string(char *str)
 {
-	int i = 0;
+	int i1 = 0;
 
 	if (!str)
-		return;
-	while (str[i] != '\0')
 	{
-		_print_char(str[i]);
-		i++;
+		return;
+	}
+	while (str[i1] != '\0')
+	{
+		_print_char(str[i1]);
+		i1++;
 	}
 }
 
@@ -30,16 +32,18 @@ void _print_string(char *str)
  */
 int _print_char(char c)
 {
-	static int i;
-	static char buf[WRITE_BUF_SIZE];
+	static int i1;
+	static char string[WRITE_BUF_SIZE];
 
-	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
+	if (c == BUF_FLUSH || i1 >= WRITE_BUF_SIZE)
 	{
-		write(2, buf, i);
-		i = 0;
+		write(2, string, i1);
+		i1 = 0;
 	}
 	if (c != BUF_FLUSH)
-		buf[i++] = c;
+	{
+		string[i1++] = c;
+	}
 	return (1);
 }
 
@@ -54,16 +58,18 @@ int _print_char(char c)
  */
 int _write_to_fd(char c, int fd)
 {
-	static int i;
-	static char buf[WRITE_BUF_SIZE];
+	static int i1;
+	static char string[WRITE_BUF_SIZE];
 
-	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
+	if (c == BUF_FLUSH || i1 >= WRITE_BUF_SIZE)
 	{
-		write(fd, buf, i);
-		i = 0;
+		write(fd, string, i1);
+		i1 = 0;
 	}
 	if (c != BUF_FLUSH)
-		buf[i++] = c;
+	{
+		string[i1++] = c;
+	}
 	return (1);
 }
 
@@ -77,13 +83,15 @@ int _write_to_fd(char c, int fd)
  */
 int _write_string_to_fd(char *str, int fd)
 {
-	int i = 0;
+	int i1 = 0;
 
 	if (!str)
+	{
 		return (0);
+	}
 	while (*str)
 	{
-		i += _write_to_fd(*str++, fd);
+		i1 += _write_to_fd(*str++, fd);
 	}
-	return (i);
+	return (i1);
 }

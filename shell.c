@@ -11,38 +11,46 @@
  */
 int main_shell_loop(info_t *info, char **av)
 {
-	ssize_t r = 0;
-	int builtin_ret = 0;
+	ssize_t ssize = 0;
+	int ret = 0;
 
-	while (r != -1 && builtin_ret != -2)
+	while (ssize != -1 && ret != -2)
 	{
 		clear_info(info);
 		if (is_interactive(info))
+		{
 			print_string("$ ");
+		}
 		_print_char(BUF_FLUSH);
-		r = get_input(info);
-		if (r != -1)
+		ssize = get_input(info);
+		if (ssize != -1)
 		{
 			set_info(info, av);
-			builtin_ret = find_builtin_command(info);
-			if (builtin_ret == -1)
+			ret = find_builtin_command(info);
+			if (ret == -1)
+			{
 				find_command(info);
+			}
 		}
 		else if (is_interactive(info))
+		{
 			print_character('\n');
+		}
 		free_info(info, 0);
 	}
 	write_history(info);
 	free_info(info, 1);
 	if (!is_interactive(info) && info->status)
+	{
 		exit(info->status);
-	if (builtin_ret == -2)
+	}
+	if (ret == -2)
 	{
 		if (info->err_num == -1)
 			exit(info->status);
 		exit(info->err_num);
 	}
-	return (builtin_ret);
+	return (ret);
 }
 
 /**
@@ -57,7 +65,7 @@ int main_shell_loop(info_t *info, char **av)
  */
 int find_builtin_command(info_t *info)
 {
-	int i, built_in_ret = -1;
+	int i1, ret = -1;
 	builtin_table builtintbl[] = {
 		{"exit", exit_shell},
 		{"env", print_env_variables},
@@ -70,14 +78,14 @@ int find_builtin_command(info_t *info)
 		{NULL, NULL}
 	};
 
-	for (i = 0; builtintbl[i].type; i++)
-		if (string_compare(info->argv[0], builtintbl[i].type) == 0)
+	for (i1 = 0; builtintbl[i1].type; i1++)
+		if (string_compare(info->argv[0], builtintbl[i1].type) == 0)
 		{
 			info->line_count++;
-			built_in_ret = builtintbl[i].func(info);
+			ret = builtintbl[i1].func(info);
 			break;
 		}
-	return (built_in_ret);
+	return (ret);
 }
 
 /**
@@ -89,8 +97,8 @@ int find_builtin_command(info_t *info)
  */
 void find_command(info_t *info)
 {
-	char *path = NULL;
-	int i, k;
+	char *path1 = NULL;
+	int i1, i;
 
 	info->path = info->argv[0];
 	if (info->linecount_flag == 1)
@@ -98,23 +106,31 @@ void find_command(info_t *info)
 		info->line_count++;
 		info->linecount_flag = 0;
 	}
-	for (i = 0, k = 0; info->arg[i]; i++)
-		if (!is_delimiter(info->arg[i], " \t\n"))
-			k++;
-	if (!k)
-		return;
-
-	path = find_command_path(info, get_env_value(info, "PATH="), info->argv[0]);
-	if (path)
+	for (i1 = 0, i = 0; info->arg[i1]; i1++)
 	{
-		info->path = path;
+		if (!is_delimiter(info->arg[i1], " \t\n"))
+		{
+			i++;
+		}
+	}
+	if (!i)
+	{
+		return;
+	}
+
+	path1 = find_command_path(info, get_env_value(info, "PATH="), info->argv[0]);
+	if (path1)
+	{
+		info->path = path1;
 		fork_command(info);
 	}
 	else
 	{
 		if ((is_interactive(info) || get_env_value(info, "PATH=")
 			|| info->argv[0][0] == '/') && is_executable_command(info, info->argv[0]))
+		{
 			fork_command(info);
+		}
 		else if (*(info->arg) != '\n')
 		{
 			info->status = 127;
@@ -132,22 +148,24 @@ void find_command(info_t *info)
  */
 void fork_command(info_t *info)
 {
-	pid_t child_pid;
+	pid_t pid;
 
-	child_pid = fork();
-	if (child_pid == -1)
+	pid = fork();
+	if (pid == -1)
 	{
 		/* TODO: PUT ERROR FUNCTION */
 		perror("Error:");
 		return;
 	}
-	if (child_pid == 0)
+	if (pid == 0)
 	{
 		if (execve(info->path, info->argv, get_environ(info)) == -1)
 		{
 			free_info(info, 1);
 			if (errno == EACCES)
+			{
 				exit(126);
+			}
 			exit(1);
 		}
 		/* TODO: PUT ERROR FUNCTION */
@@ -159,7 +177,9 @@ void fork_command(info_t *info)
 		{
 			info->status = WEXITSTATUS(info->status);
 			if (info->status == 126)
+			{
 				print_error(info, "Permission denied\n");
+			}
 		}
 	}
 }

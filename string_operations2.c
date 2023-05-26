@@ -15,28 +15,30 @@
  */
 int is_chain_delimiter(info_t *info, char *buf, size_t *p)
 {
-	size_t j = *p;
+	size_t size = *p;
 
-	if (buf[j] == '&' && buf[j + 1] == '&')
+	if (buf[size] == '&' && buf[size + 1] == '&')
 	{
-		buf[j] = 0;
-		j++;
+		buf[size] = 0;
+		size++;
 		info->cmd_buf_type = CMD_AND;
 	}
-	else if (buf[j] == '|' && buf[j + 1] == '|')
+	else if (buf[size] == '|' && buf[size + 1] == '|')
 	{
-		buf[j] = 0;
-		j++;
+		buf[size] = 0;
+		size++;
 		info->cmd_buf_type = CMD_OR;
 	}
-	else if (buf[j] == ';') /* found end of this command */
+	else if (buf[size] == ';') /* found end of this command */
 	{
-		buf[j] = 0; /* replace semicolon with null */
+		buf[size] = 0; /* replace semicolon with null */
 		info->cmd_buf_type = CMD_CHAIN;
 	}
 	else
+	{
 		return (0);
-	*p = j;
+	}
+	*p = size;
 	return (1);
 }
 
@@ -100,14 +102,20 @@ int replace_alias(info_t *info)
 	{
 		node = find_node_with_prefix(info->alias, info->argv[0], '=');
 		if (!node)
+		{
 			return (0);
+		}
 		free(info->argv[0]);
 		p = _find_character(node->str, '=');
 		if (!p)
+		{
 			return (0);
+		}
 		p = string_duplicate(p + 1);
 		if (!p)
+		{
 			return (0);
+		}
 		info->argv[0] = p;
 	}
 	return (1);
@@ -124,34 +132,34 @@ int replace_alias(info_t *info)
  */
 int replace_vars(info_t *info)
 {
-	int i = 0;
-	list_t *node;
+	int i1 = 0;
+	list_t *liststr;
 
-	for (i = 0; info->argv[i]; i++)
+	for (i1 = 0; info->argv[i1]; i1++)
 	{
-		if (info->argv[i][0] != '$' || !info->argv[i][1])
+		if (info->argv[i1][0] != '$' || !info->argv[i1][1])
 			continue;
 
-		if (!string_compare(info->argv[i], "$?"))
+		if (!string_compare(info->argv[i1], "$?"))
 		{
-			_string_replace(&(info->argv[i]),
+			_string_replace(&(info->argv[i1]),
 				string_duplicate(convert_number(info->status, 10, 0)));
 			continue;
 		}
-		if (!string_compare(info->argv[i], "$$"))
+		if (!string_compare(info->argv[i1], "$$"))
 		{
-			_string_replace(&(info->argv[i]),
+			_string_replace(&(info->argv[i1]),
 				string_duplicate(convert_number(getpid(), 10, 0)));
 			continue;
 		}
-		node = find_node_with_prefix(info->env, &info->argv[i][1], '=');
-		if (node)
+		liststr = find_node_with_prefix(info->env, &info->argv[i1][1], '=');
+		if (liststr)
 		{
-			_string_replace(&(info->argv[i]),
-				string_duplicate(_find_character(node->str, '=') + 1));
+			_string_replace(&(info->argv[i1]),
+				string_duplicate(_find_character(liststr->str, '=') + 1));
 			continue;
 		}
-		_string_replace(&info->argv[i], string_duplicate(""));
+		_string_replace(&info->argv[i1], string_duplicate(""));
 
 	}
 	return (0);
